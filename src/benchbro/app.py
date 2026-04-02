@@ -1,22 +1,26 @@
+from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from benchbro.config import Config
 from benchbro.db.schema import init_db
 
 
-async def create_app(db_path: Path | None = None) -> FastAPI:
-    app = FastAPI(title="BenchBro", version="0.1.0")
-
-    # Config + DB
+def create_app(db_path: Path | None = None) -> FastAPI:
     config = Config()
     if db_path is not None:
         config.db_path = db_path
-    db = await init_db(config.db_path)
 
-    app.state.db = db
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        app.state.db = await init_db(config.db_path)
+        yield
+        await app.state.db.close()
+
+    app = FastAPI(title="BenchBro", version="0.1.0", lifespan=lifespan)
     app.state.config = config
 
     # Trigger benchmark registry registration by importing modules
@@ -42,6 +46,14 @@ async def create_app(db_path: Path | None = None) -> FastAPI:
     # Serve built frontend if static dir exists
     static_dir = Path(__file__).parent / "static"
     if static_dir.exists():
-        app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
+        app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
+        @app.get("/{path:path}")
+        async def serve_spa(request: Request, path: str):
+            # Serve actual files if they exist, otherwise index.html for SPA routing
+            file_path = static_dir / path
+            if file_path.is_file():
+                return FileResponse(file_path)
+            return FileResponse(static_dir / "index.html")
 
     return app

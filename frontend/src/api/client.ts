@@ -19,33 +19,42 @@ export type BenchmarkInfo = {
 
 export type Session = {
   id: number;
-  model: string;
-  preset: string | null;
+  model_config_id: number;
+  preset_used: string | null;
   status: string;
   started_at: string;
-  finished_at: string | null;
+  completed_at: string | null;
 };
 
 export type Run = {
   id: number;
-  session_id: number;
-  benchmark: string;
+  eval_session_id: number;
+  benchmark_name: string;
+  benchmark_version: string;
   status: string;
   score: number | null;
+  score_breakdown: string | null;
   runtime_seconds: number | null;
-  subset_mode: string;
-  started_at: string;
-  finished_at: string | null;
+  subset_mode: string | null;
+  scoring_mode: string | null;
+  error_info: string | null;
+  started_at: string | null;
+  completed_at: string | null;
 };
 
-export type SessionDetails = Session & {
+export type SessionDetails = {
+  session: Session;
   runs: Run[];
 };
 
 export type StartSessionConfig = {
-  model: string;
-  benchmarks: string[];
-  subset?: string;
+  model_name: string;
+  backend_type: string;
+  backend_url: string;
+  prompt_format?: string;
+  context_length?: number;
+  sampling_params?: Record<string, unknown>;
+  benchmarks: Record<string, string>;
   preset?: string;
 };
 
@@ -94,4 +103,8 @@ export function startSession(config: StartSessionConfig): Promise<{ session_id: 
 
 export function fetchRunDetails(runId: number): Promise<Run> {
   return request(`/api/runs/${runId}/details`);
+}
+
+export function cancelSession(id: number): Promise<{ status: string }> {
+  return request(`/api/sessions/${id}/cancel`, { method: "POST" });
 }

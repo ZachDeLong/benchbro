@@ -142,11 +142,11 @@ export default function Home() {
               >
                 <div>
                   <span className="text-sm font-medium text-white">
-                    {s.model}
+                    Session #{s.id}
                   </span>
-                  {s.preset && (
+                  {s.preset_used && (
                     <span className="ml-2 text-xs text-gray-500">
-                      preset: {s.preset}
+                      preset: {s.preset_used}
                     </span>
                   )}
                   <p className="text-xs text-gray-500 mt-0.5">

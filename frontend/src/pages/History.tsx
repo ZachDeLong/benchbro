@@ -63,10 +63,10 @@ export default function History() {
               <div className="flex items-center gap-4">
                 <span className="text-gray-600 text-sm font-mono">#{s.id}</span>
                 <div>
-                  <span className="text-sm font-medium text-white">{s.model}</span>
-                  {s.preset && (
+                  <span className="text-sm font-medium text-white">Session #{s.id}</span>
+                  {s.preset_used && (
                     <span className="ml-2 text-xs text-gray-500">
-                      preset: {s.preset}
+                      preset: {s.preset_used}
                     </span>
                   )}
                   <p className="text-xs text-gray-500 mt-0.5">

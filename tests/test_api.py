@@ -1,22 +1,17 @@
 import pytest
+from asgi_lifespan import LifespanManager
 from httpx import ASGITransport, AsyncClient
 
 from benchbro.app import create_app
 
 
 @pytest.fixture
-async def app(tmp_path):
-    application = await create_app(db_path=tmp_path / "test.db")
-    yield application
-    if hasattr(application.state, "db"):
-        await application.state.db.close()
-
-
-@pytest.fixture
-async def client(app):
-    transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://test") as c:
-        yield c
+async def client(tmp_path):
+    app = create_app(db_path=tmp_path / "test.db")
+    async with LifespanManager(app) as manager:
+        transport = ASGITransport(app=manager.app)
+        async with AsyncClient(transport=transport, base_url="http://test") as c:
+            yield c
 
 
 async def test_health_check(client):

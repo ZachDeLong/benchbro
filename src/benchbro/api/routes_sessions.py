@@ -18,6 +18,9 @@ from benchbro.db.queries import (
 )
 from benchbro.runner.engine import BenchmarkRunner
 
+# Track running tasks so they can be cancelled
+_running_tasks: dict[int, asyncio.Task] = {}
+
 router = APIRouter()
 
 
@@ -83,16 +86,38 @@ async def start_session(request: Request, body: StartSessionRequest):
 
     runner = BenchmarkRunner(db=db, adapter=adapter)
 
-    # Launch in background
-    asyncio.create_task(
+    # Launch in background and track the task
+    task = asyncio.create_task(
         runner.run_session(
             session_id=session_id,
             benchmarks=benchmark_instances,
             subset_mode=subset_mode,
         )
     )
+    _running_tasks[session_id] = task
+
+    def cleanup(t):
+        _running_tasks.pop(session_id, None)
+
+    task.add_done_callback(cleanup)
 
     return {"session_id": session_id, "status": "started"}
+
+
+@router.post("/sessions/{session_id}/cancel")
+async def cancel_session(request: Request, session_id: int):
+    db = request.app.state.db
+    task = _running_tasks.get(session_id)
+    if task and not task.done():
+        task.cancel()
+    from benchbro.db.queries import update_eval_session, update_run
+    await update_eval_session(db, session_id, status="cancelled")
+    # Cancel any running/queued runs in this session
+    runs = await get_runs_for_session(db, session_id)
+    for run in runs:
+        if run["status"] in ("running", "queued"):
+            await update_run(db, run["id"], status="cancelled")
+    return {"status": "cancelled"}
 
 
 @router.get("/sessions")

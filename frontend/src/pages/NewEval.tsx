@@ -33,6 +33,7 @@ export default function NewEval() {
   const [backends, setBackends] = useState<Backend[]>([]);
   const [benchmarks, setBenchmarks] = useState<BenchmarkInfo[]>([]);
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
+  const [selectedBackend, setSelectedBackend] = useState<Backend | null>(null);
   const [selectedBenchmarks, setSelectedBenchmarks] = useState<Set<string>>(new Set());
   const [subset, setSubset] = useState("full");
   const [loading, setLoading] = useState(true);
@@ -63,14 +64,23 @@ export default function NewEval() {
   }
 
   async function handleRun() {
-    if (!selectedModel || selectedBenchmarks.size === 0) return;
+    if (!selectedModel || !selectedBackend || selectedBenchmarks.size === 0) return;
     setSubmitting(true);
     setError(null);
+    const subsetValue = subset === "25pct" ? "25%" : subset === "10pct" ? "10%" : "full";
+    const benchmarksMap: Record<string, string> = {};
+    for (const name of selectedBenchmarks) {
+      benchmarksMap[name] = subsetValue;
+    }
     try {
       const result = await startSession({
-        model: selectedModel,
-        benchmarks: Array.from(selectedBenchmarks),
-        subset,
+        model_name: selectedModel,
+        backend_type: selectedBackend.name === "Ollama" ? "ollama" : "openai_compat",
+        backend_url: selectedBackend.url,
+        prompt_format: "chat",
+        context_length: 4096,
+        sampling_params: { temperature: 0.0 },
+        benchmarks: benchmarksMap,
       });
       navigate(`/results/${result.session_id}`);
     } catch (e) {
@@ -111,7 +121,10 @@ export default function NewEval() {
               return (
                 <button
                   key={`${backend}::${model}`}
-                  onClick={() => setSelectedModel(isSelected ? null : key)}
+                  onClick={() => {
+                    setSelectedModel(isSelected ? null : key);
+                    setSelectedBackend(isSelected ? null : backends.find(bb => bb.name === backend) ?? null);
+                  }}
                   className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
                     isSelected
                       ? "bg-indigo-600 border-indigo-500 text-white"

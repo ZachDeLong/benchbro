@@ -115,7 +115,7 @@ class HumanEvalBenchmark(Benchmark):
             )
 
             try:
-                raw_output = await adapter.complete(prompt, {"temperature": 0.0})
+                raw_output = await adapter.generate(prompt, {"temperature": 0.0})
             except Exception as exc:
                 raw_output = str(exc)
 
