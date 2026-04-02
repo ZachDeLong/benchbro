@@ -2,7 +2,7 @@
 
 benchmark your local LLMs without the headache. runs in a browser, talks to ollama or llama.cpp.
 
-early/alpha — works but rough around the edges.
+early/alpha - works but is quite rough around the edges.
 
 ## setup
 
