@@ -1,47 +1,32 @@
-# BenchBro
+# benchbro
 
-Local LLM benchmarking with a friendly web UI.
+benchmark your local LLMs without the headache. runs in a browser, talks to ollama or llama.cpp.
 
-## Install
+early/alpha — works but rough around the edges.
 
-```bash
-pip install benchbro
+## setup
+
 ```
-
-## Usage
-
-```bash
-# Start Ollama (or llama.cpp server) first, then:
-benchbro
-```
-
-Browser opens automatically. Select your model, pick benchmarks, run, and compare results.
-
-## Supported Backends
-
-- **Ollama** — auto-detected at localhost:11434
-- **OpenAI-compatible** — llama.cpp server, LM Studio, vLLM, TabbyAPI
-
-## Benchmarks (v1)
-
-| Benchmark | Category | What it tests |
-|-----------|----------|---------------|
-| MMLU-Pro | Knowledge | Broad knowledge across 57 subjects |
-| GSM8K | Math | Grade-school math word problems |
-| HumanEval | Coding | Python code generation |
-| Perplexity | Quant Quality | Raw language modeling (WikiText-2) |
-
-## Development
-
-```bash
-git clone https://github.com/zachdelong/benchbro
-cd benchbro
-pip install -e ".[dev]"
+pip install -e .
 cd frontend && npm install && npm run build && cd ..
-python -m pytest tests/ -v
+```
+
+## usage
+
+```
+# have ollama running with a model pulled, then:
 benchbro
 ```
 
-## License
+opens a browser. pick your model, pick a benchmark, run it, see results.
+
+## benchmarks
+
+- MMLU-Pro (knowledge)
+- GSM8K (math)
+- HumanEval (code)
+- Perplexity (quant quality)
+
+## license
 
 MIT
