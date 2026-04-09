@@ -24,6 +24,8 @@ export type Session = {
   status: string;
   started_at: string;
   completed_at: string | null;
+  model_name: string;
+  backend_type: string;
 };
 
 export type Run = {

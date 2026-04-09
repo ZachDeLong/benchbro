@@ -2,25 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchSessions } from "../api/client";
 import type { Session } from "../api/client";
-
-function StatusBadge({ status }: { status: string }) {
-  const colors: Record<string, string> = {
-    completed: "bg-green-900 text-green-300",
-    running: "bg-blue-900 text-blue-300",
-    partial: "bg-yellow-900 text-yellow-300",
-    failed: "bg-red-900 text-red-300",
-    pending: "bg-gray-800 text-gray-400",
-  };
-  return (
-    <span
-      className={`px-2 py-0.5 rounded text-xs font-medium ${
-        colors[status] ?? "bg-gray-800 text-gray-400"
-      }`}
-    >
-      {status}
-    </span>
-  );
-}
+import StatusBadge from "../components/StatusBadge";
 
 export default function History() {
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -63,10 +45,15 @@ export default function History() {
               <div className="flex items-center gap-4">
                 <span className="text-gray-600 text-sm font-mono">#{s.id}</span>
                 <div>
-                  <span className="text-sm font-medium text-white">Session #{s.id}</span>
+                  <span className="text-sm font-medium text-white">
+                    {s.model_name}
+                  </span>
+                  <span className="ml-2 text-xs text-gray-600">
+                    {s.backend_type}
+                  </span>
                   {s.preset_used && (
                     <span className="ml-2 text-xs text-gray-500">
-                      preset: {s.preset_used}
+                      {s.preset_used}
                     </span>
                   )}
                   <p className="text-xs text-gray-500 mt-0.5">

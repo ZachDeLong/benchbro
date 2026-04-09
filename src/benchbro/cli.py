@@ -7,7 +7,7 @@ from benchbro.config import Config
 def main():
     config = Config()
     url = f"http://{config.host}:{config.port}"
-    print(f"\n  BenchBro v0.1.0")
+    print("\n  BenchBro v0.1.0")
     print(f"  Running at {url}")
     print(f"  Data directory: {config.data_dir}\n")
     webbrowser.open(url)

@@ -94,14 +94,25 @@ async def create_eval_session(
 
 async def get_eval_session(db: aiosqlite.Connection, session_id: int) -> dict | None:
     cursor = await db.execute(
-        "SELECT * FROM eval_sessions WHERE id = ?", (session_id,)
+        """SELECT es.*, m.name AS model_name, mc.backend_type
+           FROM eval_sessions es
+           JOIN model_configs mc ON es.model_config_id = mc.id
+           JOIN models m ON mc.model_id = m.id
+           WHERE es.id = ?""",
+        (session_id,),
     )
     row = await cursor.fetchone()
     return _row_to_dict(row) if row is not None else None
 
 
 async def list_eval_sessions(db: aiosqlite.Connection) -> list[dict]:
-    cursor = await db.execute("SELECT * FROM eval_sessions ORDER BY id")
+    cursor = await db.execute(
+        """SELECT es.*, m.name AS model_name, mc.backend_type
+           FROM eval_sessions es
+           JOIN model_configs mc ON es.model_config_id = mc.id
+           JOIN models m ON mc.model_id = m.id
+           ORDER BY es.id DESC"""
+    )
     rows = await cursor.fetchall()
     return [_row_to_dict(r) for r in rows]
 

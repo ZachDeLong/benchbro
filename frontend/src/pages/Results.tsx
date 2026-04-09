@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { fetchSession, cancelSession, fetchRunDetails } from "../api/client";
 import type { SessionDetails, Run } from "../api/client";
+import StatusBadge from "../components/StatusBadge";
 
 type RunDetail = {
   id: number;
@@ -14,26 +15,6 @@ type RunDetail = {
   latency_ms: number | null;
   token_count: number | null;
 };
-
-function StatusBadge({ status }: { status: string }) {
-  const colors: Record<string, string> = {
-    completed: "bg-green-900 text-green-300",
-    running: "bg-blue-900 text-blue-300 animate-pulse",
-    partial: "bg-yellow-900 text-yellow-300",
-    failed: "bg-red-900 text-red-300",
-    cancelled: "bg-gray-700 text-gray-400",
-    pending: "bg-gray-800 text-gray-400",
-  };
-  return (
-    <span
-      className={`px-2.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wide ${
-        colors[status] ?? "bg-gray-800 text-gray-400"
-      }`}
-    >
-      {status}
-    </span>
-  );
-}
 
 function ScoreDisplay({ run }: { run: Run }) {
   if (run.score === null) return <span className="text-gray-600">—</span>;
@@ -253,12 +234,13 @@ export default function Results() {
         <div>
           <div className="flex items-center gap-3 mb-1">
             <h1 className="text-2xl font-bold text-white">
-              Session #{session.id}
+              {session.model_name}
             </h1>
+            <span className="text-sm text-gray-500">{session.backend_type}</span>
             <StatusBadge status={session.status} />
           </div>
           <p className="text-gray-600 text-xs mt-0.5">
-            Started {new Date(session.started_at).toLocaleString()}
+            Session #{session.id} · Started {new Date(session.started_at).toLocaleString()}
             {session.completed_at && (
               <> · Finished {new Date(session.completed_at).toLocaleString()}</>
             )}

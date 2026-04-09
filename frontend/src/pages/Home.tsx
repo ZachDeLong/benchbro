@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchBackends, fetchSessions } from "../api/client";
 import type { Backend, Session } from "../api/client";
+import StatusBadge from "../components/StatusBadge";
 
 function StatusDot({ status }: { status: string }) {
   const isReady = status === "ready";
@@ -16,24 +17,6 @@ function StatusDot({ status }: { status: string }) {
           : "bg-gray-600"
       }`}
     />
-  );
-}
-
-function StatusBadge({ status }: { status: string }) {
-  const colors: Record<string, string> = {
-    completed: "bg-green-900 text-green-300",
-    running: "bg-blue-900 text-blue-300",
-    partial: "bg-yellow-900 text-yellow-300",
-    failed: "bg-red-900 text-red-300",
-  };
-  return (
-    <span
-      className={`px-2 py-0.5 rounded text-xs font-medium ${
-        colors[status] ?? "bg-gray-800 text-gray-400"
-      }`}
-    >
-      {status}
-    </span>
   );
 }
 
@@ -142,11 +125,14 @@ export default function Home() {
               >
                 <div>
                   <span className="text-sm font-medium text-white">
-                    Session #{s.id}
+                    {s.model_name}
+                  </span>
+                  <span className="ml-2 text-xs text-gray-600">
+                    {s.backend_type}
                   </span>
                   {s.preset_used && (
                     <span className="ml-2 text-xs text-gray-500">
-                      preset: {s.preset_used}
+                      {s.preset_used}
                     </span>
                   )}
                   <p className="text-xs text-gray-500 mt-0.5">

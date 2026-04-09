@@ -1,11 +1,8 @@
-import pytest
-
 from benchbro.benchmarks.base import (
     Benchmark,
     BenchmarkInfo,
     BenchmarkRegistry,
     BenchmarkResult,
-    QuestionResult,
 )
 from benchbro.benchmarks.perplexity import PerplexityBenchmark
 from benchbro.benchmarks.gsm8k import GSM8KBenchmark
